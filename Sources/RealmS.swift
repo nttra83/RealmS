@@ -27,14 +27,7 @@ import RealmSwift
  */
 public final class RealmS {
 
-    // MARK: Additional
-
-    public enum ErrorType: Error {
-        case write /// throwed while commit write transaction.
-        case encrypt /// throwed by `writeCopyToURL(_:, encryptionKey:)`
-    }
-
-    public typealias ErrorHandler = (_ realm: RealmS, _ error: NSError, _ type: ErrorType) -> Void
+    public typealias ErrorHandler = (_ realm: RealmS, _ error: Error) -> Void
 
     private static var handleError: ErrorHandler?
 
@@ -85,7 +78,7 @@ public final class RealmS {
             let realm = try Realm()
             self.init(realm)
         } catch {
-            fatalError((error as NSError).localizedDescription)
+            fatalError(error.localizedDescription)
         }
     }
 
@@ -101,7 +94,7 @@ public final class RealmS {
             let realm = try Realm(configuration: configuration)
             self.init(realm)
         } catch {
-            fatalError((error as NSError).localizedDescription)
+            fatalError(error.localizedDescription)
         }
     }
 
@@ -112,7 +105,7 @@ public final class RealmS {
 
      - throws: An `NSError` if the Realm could not be initialized.
      */
-    public convenience init!(fileURL: URL) {
+    public convenience init(fileURL: URL) {
         var configuration = Realm.Configuration.defaultConfiguration
         configuration.fileURL = fileURL
         self.init(configuration: configuration)
@@ -144,7 +137,7 @@ public final class RealmS {
             try realm.write(block)
             clean()
         } catch {
-            RealmS.handleError?(self, error as NSError, .write)
+            RealmS.handleError?(self, error)
         }
     }
 
@@ -179,7 +172,7 @@ public final class RealmS {
             try realm.commitWrite()
             clean()
         } catch {
-            RealmS.handleError?(self, error as NSError, .write)
+            RealmS.handleError?(self, error)
         }
     }
 
@@ -589,7 +582,7 @@ public final class RealmS {
         do {
             try realm.writeCopy(toFile: fileURL, encryptionKey: encryptionKey)
         } catch {
-            RealmS.handleError?(self, error as NSError, .encrypt)
+            RealmS.handleError?(self, error)
         }
     }
 

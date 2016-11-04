@@ -49,7 +49,7 @@ class Tests: XCTestCase {
 
     private lazy var load: () = {
         Realm.Configuration.defaultConfiguration.deleteRealmIfMigrationNeeded = true
-        RealmS.onError { (realm, error, type) in
+        RealmS.onError { (realm, error) in
             XCTAssertThrowsError(error)
         }
     }()
@@ -65,6 +65,44 @@ class Tests: XCTestCase {
             realm.deleteAll()
         }
         super.tearDown()
+    }
+
+    func test_init() {
+        let _ = RealmS()
+    }
+
+    func test_initWithConfig() {
+        var config = Realm.Configuration.defaultConfiguration
+        guard let url = config.fileURL else {
+            XCTAssertFalse(true)
+            return
+        }
+        let file = url.lastPathComponent
+        let dir = url.deletingLastPathComponent().appendingPathComponent("config")
+        do {
+            try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true, attributes: nil)
+        } catch {
+            XCTAssertThrowsError(error)
+        }
+        let fileURL = dir.appendingPathComponent(file)
+        config.fileURL = fileURL
+        let _ = RealmS(configuration: config)
+    }
+
+    func test_initWithFileURL() {
+        guard let url = Realm.Configuration.defaultConfiguration.fileURL else {
+            XCTAssertFalse(true)
+            return
+        }
+        let file = url.lastPathComponent
+        let dir = url.deletingLastPathComponent().appendingPathComponent("fileURL")
+        do {
+            try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true, attributes: nil)
+        } catch {
+            XCTAssertThrowsError(error)
+        }
+        let fileURL = dir.appendingPathComponent(file)
+        let _ = RealmS(fileURL: fileURL)
     }
 
     func test_config() {

@@ -15,8 +15,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-        RealmS.onError { (realm, error, type) in
-            //
+        RealmS.onError { (realm, error) in
+            NSLog(error.localizedDescription)
         }
         return true
     }
